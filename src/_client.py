@@ -39,7 +39,7 @@ SEGMENT_API_KEY = os.getenv("SEGMENT_API_KEY", "")
 MCP_SERVER_SLUG = os.getenv("MCP_SERVER_SLUG", "JiayuWang/segment-mcp")
 MODEL           = os.getenv("DEDALUS_TEST_MODEL", "anthropic/claude-sonnet-4-5")
 
-REQUIRED_TOOLS = ["list_workspaces", "list_sources", "list_destinations", "get_source_schema", "create_tracking_plan", "list_audiences"]
+REQUIRED_TOOLS = ["segment_list_workspaces", "segment_list_sources", "segment_list_destinations", "segment_get_source_schema", "segment_create_tracking_plan", "segment_list_audiences"]
 
 
 def _passed(tool_name: str, tool_events: list) -> bool:
@@ -99,17 +99,17 @@ async def main() -> int:
 
     results: dict[str, bool] = {}
 
-    results["list_workspaces"] = await _run_tool(runner, creds, "list_workspaces",
+    results["segment_list_workspaces"] = await _run_tool(runner, creds, "segment_list_workspaces",
         "Call list_workspaces and show workspace ids.")
-    results["list_sources"] = await _run_tool(runner, creds, "list_sources",
+    results["segment_list_sources"] = await _run_tool(runner, creds, "segment_list_sources",
         "Call list_workspaces to get a workspace id, then call list_sources for it.")
-    results["list_destinations"] = await _run_tool(runner, creds, "list_destinations",
+    results["segment_list_destinations"] = await _run_tool(runner, creds, "segment_list_destinations",
         "Call list_workspaces to get a workspace id, then call list_destinations for it.")
-    results["get_source_schema"] = await _run_tool(runner, creds, "get_source_schema",
+    results["segment_get_source_schema"] = await _run_tool(runner, creds, "segment_get_source_schema",
         "Call list_workspaces, list_sources to get a source id, then call get_source_schema on it.")
-    results["list_audiences"] = await _run_tool(runner, creds, "list_audiences",
+    results["segment_list_audiences"] = await _run_tool(runner, creds, "segment_list_audiences",
         "Call list_workspaces to get a workspace id, then call list_audiences for it.")
-    results["create_tracking_plan"] = await _run_tool(runner, creds, "create_tracking_plan",
+    results["segment_create_tracking_plan"] = await _run_tool(runner, creds, "segment_create_tracking_plan",
         "Call list_workspaces to get a workspace id, then create_tracking_plan with name='Dedalus Smoke Test Plan'.")
 
     print("\n" + "=" * 60)

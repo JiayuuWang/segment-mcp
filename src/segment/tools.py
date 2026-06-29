@@ -20,98 +20,58 @@ segment = Connection(
 Result = list[TextContent]
 
 
-async def _req(
-    method: HttpMethod,
-    path: str,
-    body: dict | None = None,
-    params: dict | None = None,
-) -> Result:
+async def _req(method: HttpMethod, path: str, body: dict | None = None, params: dict | None = None) -> Result:
     ctx = get_context()
     resp = await ctx.dispatch(
         "JiayuWang-segment-mcp",
         HttpRequest(method=method, path=path, body=body, params=params),
     )
     if resp.success:
-        data = resp.response.body or {}
-        return [TextContent(type="text", text=json.dumps(data, indent=2))]
+        return [TextContent(type="text", text=json.dumps(resp.response.body or {}, indent=2))]
     error = resp.error.message if resp.error else "Request failed"
     return [TextContent(type="text", text=json.dumps({"error": error}, indent=2))]
 
 
-@tool(
-    description="List all workspaces in the Segment account",
-    annotations=ToolAnnotations(readOnlyHint=True),
-)
-async def list_workspaces() -> Result:
-    """List all workspaces accessible by the API key."""
+@tool(description="Segment: list all workspaces", annotations=ToolAnnotations(readOnlyHint=True))
+async def segment_list_workspaces() -> Result:
     return await _req(HttpMethod.GET, "/workspaces")
 
 
-@tool(
-    description="List all sources in a workspace",
-    annotations=ToolAnnotations(readOnlyHint=True),
-)
-async def list_sources(workspace_id: str) -> Result:
-    """List all sources in the specified workspace."""
+@tool(description="Segment: list all sources in a workspace", annotations=ToolAnnotations(readOnlyHint=True))
+async def segment_list_sources(workspace_id: str) -> Result:
     return await _req(HttpMethod.GET, f"/workspaces/{workspace_id}/sources")
 
 
-@tool(
-    description="List all destinations in a workspace",
-    annotations=ToolAnnotations(readOnlyHint=True),
-)
-async def list_destinations(workspace_id: str) -> Result:
-    """List all destinations configured in the workspace."""
+@tool(description="Segment: list all destinations in a workspace", annotations=ToolAnnotations(readOnlyHint=True))
+async def segment_list_destinations(workspace_id: str) -> Result:
     return await _req(HttpMethod.GET, f"/workspaces/{workspace_id}/destinations")
 
 
-@tool(
-    description="Get the schema (event structure) for a source",
-    annotations=ToolAnnotations(readOnlyHint=True),
-)
-async def get_source_schema(source_id: str) -> Result:
-    """Get the tracking schema for a specific source."""
+@tool(description="Segment: get tracking schema for a source", annotations=ToolAnnotations(readOnlyHint=True))
+async def segment_get_source_schema(source_id: str) -> Result:
     return await _req(HttpMethod.GET, f"/sources/{source_id}/schema")
 
 
-@tool(
-    description="Create a new tracking plan to standardize event tracking",
-    annotations=ToolAnnotations(readOnlyHint=False),
-)
-async def create_tracking_plan(
-    workspace_id: str,
-    name: str,
-    description: Optional[str] = None,
-) -> Result:
-    """Create a tracking plan.
-    
-    Args:
-        workspace_id: Target workspace
-        name: Tracking plan name
-        description: Optional description
-    """
+@tool(description="Segment: create a tracking plan", annotations=ToolAnnotations(readOnlyHint=False))
+async def segment_create_tracking_plan(workspace_id: str, name: str, description: Optional[str] = None) -> Result:
     body = {"name": name}
     if description:
         body["description"] = description
     return await _req(HttpMethod.POST, f"/workspaces/{workspace_id}/tracking-plans", body=body)
 
 
-@tool(
-    description="List audiences (user segments) in a workspace",
-    annotations=ToolAnnotations(readOnlyHint=True),
-)
-async def list_audiences(workspace_id: str) -> Result:
-    """List all audiences configured in the workspace."""
+@tool(description="Segment: list audiences in a workspace", annotations=ToolAnnotations(readOnlyHint=True))
+async def segment_list_audiences(workspace_id: str) -> Result:
     return await _req(HttpMethod.GET, f"/workspaces/{workspace_id}/audiences")
 
 
 segment_tools = [
-    list_workspaces,
-    list_sources,
-    list_destinations,
-    get_source_schema,
-    create_tracking_plan,
-    list_audiences,
+    segment_list_workspaces,
+    segment_list_sources,
+    segment_list_destinations,
+    segment_get_source_schema,
+    segment_create_tracking_plan,
+    segment_list_audiences,
 ]
 
 __all__ = ["segment", "segment_tools"]
